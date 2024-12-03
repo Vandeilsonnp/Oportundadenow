@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Especialista em Instagram Marketing</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f9f9f9; color: #333; position: relative; overflow: hidden; }
+        .quiz-container { max-width: 600px; margin: auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .question { margin-bottom: 20px; }
+        .option { display: block; margin: 10px 0; padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; transition: background 0.3s; }
+        .option:hover { background: #0056b3; }
+        #result { font-size: 20px; margin-top: 20px; }
+        
+        /* Barra de progresso */
+        .progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #007bff;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        /* Confetes caindo */
+        .confetti {
+            position: absolute;
+            top: -50px;
+            width: 10px;
+            height: 10px;
+            background-color: #ffcc00;
+            opacity: 0;
+            animation: confetti-fall 2s ease-out infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .confetti:nth-child(1) { animation-delay: 0s; left: 20%; background-color: #ff5733; }
+        .confetti:nth-child(2) { animation-delay: 0.2s; left: 30%; background-color: #33ff57; }
+        .confetti:nth-child(3) { animation-delay: 0.4s; left: 40%; background-color: #3357ff; }
+        .confetti:nth-child(4) { animation-delay: 0.6s; left: 50%; background-color: #ff33a6; }
+        .confetti:nth-child(5) { animation-delay: 0.8s; left: 60%; background-color: #f5a623; }
+        .confetti:nth-child(6) { animation-delay: 1s; left: 70%; background-color: #f39c12; }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Quiz: Especialista em Instagram Marketing</h1>
+        <div id="quiz">
+            <div class="question">
+                <p>1. Qual é o objetivo principal de usar o Instagram para marketing?</p>
+                <button class="option" onclick="nextQuestion(1)">😊 Aumentar engajamento</button>
+                <button class="option" onclick="nextQuestion(0)">🔥 Postar fotos pessoais</button>
+                <button class="option" onclick="nextQuestion(1)">🎯 Gerar vendas</button>
+                <button class="option" onclick="nextQuestion(0)">😂 Compartilhar memes</button>
+            </div>
+        </div>
+
+        <!-- Barra de progresso -->
+        <div class="progress-bar-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+
+        <div id="result" style="display: none;">
+            <p>Parabéns! Você completou o quiz.</p>
+            <p>Sua pontuação: <span id="score"></span> de 5</p>
+            <!-- Botão "Ir para o Checkout" aumentado -->
+            <button onclick="goToCheckout()" style="padding: 20px 40px; font-size: 18px; background: #28a745; color: #fff; border: none; border-radius: 10px; cursor: pointer; transition: background 0.3s;">Ir para o Checkout</button>
+        </div>
+    </div>
+
+    <!-- Confetes -->
+    <div id="confetti-container"></div>
+
+    <script>
+        const quizData = [
+            { 
+                question: "Qual é o objetivo principal de usar o Instagram para marketing?", 
+                options: [
+                    "Aumentar engajamento",
+                    "Postar fotos pessoais",
+                    "Gerar vendas",
+                    "Compartilhar memes"
+                ]
+            },
+            { 
+                question: "O que é um bom conteúdo para aumentar engajamento no Instagram?", 
+                options: [
+                    "Vídeos curtos e informativos",
+                    "Fotos sem legendas",
+                    "Posts sem frequência",
+                    "Textos longos sem imagens"
+                ]
+            },
+            { 
+                question: "Qual métrica é mais importante para avaliar o sucesso de uma campanha no Instagram?", 
+                options: [
+                    "Número de curtidas",
+                    "Engajamento total (curtidas, comentários e compartilhamentos)",
+                    "Número de seguidores",
+                    "Número de postagens"
+                ]
+            },
+            { 
+                question: "Quantas hashtags são recomendadas por post no Instagram?", 
+                options: [
+                    "1 a 5",
+                    "10 a 15",
+                    "15 a 30",
+                    "Mais de 30"
+                ]
+            },
+            { 
+                question: "Qual recurso do Instagram é ideal para vendas rápidas?", 
+                options: [
+                    "Stories com links",
+                    "Postagens no feed",
+                    "Comentários",
+                    "Reels sem legenda"
+                ]
+            }
+        ];
+
+        const correctAnswers = [1, 0, 1, 2, 0]; // Exemplo de respostas corretas (índices)
+        const emoticons = ["😊", "🤔", "🚀", "😂", "😍", "🔥", "💡", "🎯", "👍", "💪"]; // Lista de emoticons possíveis
+        let currentQuestion = 0;
+        let score = 0;
+
+        function getRandomEmoticons() {
+            // Emoticons aleatórios para as opções
+            let randomEmoticons = [];
+            let usedIndexes = [];
+
+            while (randomEmoticons.length < 4) {
+                let randomIndex = Math.floor(Math.random() * emoticons.length);
+                if (!usedIndexes.includes(randomIndex)) {
+                    randomEmoticons.push(emoticons[randomIndex]);
+                    usedIndexes.push(randomIndex);
+                }
+            }
+
+            return randomEmoticons;
+        }
+
+        function nextQuestion(answer) {
+            if (answer === correctAnswers[currentQuestion]) {
+                score++;
+            }
+
+            triggerConfetti();  // Chama a função de confetes após cada resposta
+
+            currentQuestion++;
+
+            // Atualiza a barra de progresso
+            const progress = (currentQuestion / quizData.length) * 100;
+            document.getElementById("progress-bar").style.width = progress + "%";
+            
+            if (currentQuestion < quizData.length) {
+                const questionDiv = document.getElementById("quiz");
+                const currentData = quizData[currentQuestion];
+                const randomEmoticons = getRandomEmoticons();
+                questionDiv.innerHTML = `
+                    <div class="question">
+                        <p>${currentData.question}</p>
+                        <button class="option" onclick="nextQuestion(0)">${randomEmoticons[0]} ${currentData.options[0]}</button>
+                        <button class="option" onclick="nextQuestion(1)">${randomEmoticons[1]} ${currentData.options[1]}</button>
+                        <button class="option" onclick="nextQuestion(2)">${randomEmoticons[2]} ${currentData.options[2]}</button>
+                        <button class="option" onclick="nextQuestion(3)">${randomEmoticons[3]} ${currentData.options[3]}</button>
+                    </div>
+                `;
+            } else {
+                showResult();
+            }
+        }
+
+        function triggerConfetti() {
+            const confettiContainer = document.getElementById("confetti-container");
+            const confettiCount = 30; // Quantidade de confetes
+
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement("div");
+                confetti.classList.add("confetti");
+                confetti.style.left = Math.random() * 100 + "%";  // Posição aleatória
+                confetti.style.animationDuration = Math.random() * 2 + 2 + "s";  // Duração aleatória
+                confettiContainer.appendChild(confetti);
+
+                // Remove confetes após a animação
+                setTimeout(() => {
+                    confetti.remove();
+                }, 2500);
+            }
+        }
+
+        function showResult() {
+            document.getElementById("quiz").style.display = "none";
+            const resultDiv = document.getElementById("result");
+            document.getElementById("score").textContent = score;  // Exibe a pontuação
+            resultDiv.style.display = "block";
+        }
+
+        function goToCheckout() {
+            window.location.href = "https://pay.cakto.com.br/8ooH5fQ";
+        }
+    </script>
+</body>
+</html>
